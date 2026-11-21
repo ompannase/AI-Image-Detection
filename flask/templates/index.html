@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroVision AI Image Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --deep-space: #0B0C10;
+            --nebula-purple: #2E2459;
+            --quantum-teal: #00F5D4;
+            --plasma-pink: #FF006E;
+            --star-dust: rgba(255,255,255,0.1);
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--deep-space);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .upload-container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 3rem;
+            background: rgba(14, 14, 28, 0.6);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .upload-card {
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 4rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            background: linear-gradient(145deg, rgba(46,36,89,0.3), rgba(14,14,28,0.5));
+        }
+
+        .upload-card:hover {
+            border-color: var(--quantum-teal);
+            box-shadow: 0 0 30px rgba(0,245,212,0.2);
+        }
+
+        #preview-container {
+            position: relative;
+            margin: 3rem 0;
+            border-radius: 20px;
+            overflow: hidden;
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+            transition: transform 0.4s, box-shadow 0.4s;
+        }
+
+        #preview-image {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            object-position: center;
+            filter: grayscale(20%) contrast(110%);
+            transition: filter 0.4s ease;
+        }
+
+        .result-badge {
+            font-size: 1.3rem;
+            padding: 1.2rem 2.5rem;
+            border-radius: 35px;
+            background: linear-gradient(145deg, var(--plasma-pink), #FF0099);
+            box-shadow: 0 8px 25px rgba(255,0,110,0.3);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(11,12,16,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .cyber-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: var(--quantum-teal);
+            border-radius: 50%;
+            position: relative;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-neuro {
+            background: linear-gradient(145deg, var(--quantum-teal), #00D4B8);
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        h1 {
+            font-weight: 700;
+            letter-spacing: -1px;
+            background: linear-gradient(45deg, #FFFFFF, var(--quantum-teal));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 15px rgba(0,245,212,0.3);
+        }
+
+        .custom-file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body class="py-5">
+    <div id="particles-js"></div>
+    
+    <div class="container">
+        <div class="upload-container">
+            <h1 class="text-center mb-4 display-2 fw-bold">NEUROVISION AI DETECTOR</h1>
+            <p class="text-center mb-5 text-light opacity-85 fs-5">Advanced Generative Adversarial Network Analysis</p>
+
+            <form method="post" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-card position-relative" onclick="document.getElementById('fileInput').click()">
+                    <div class="loading-overlay">
+                        <div class="cyber-spinner"></div>
+                    </div>
+                    <i class="fas fa-atom upload-icon mb-4" style="font-size: 4rem; color: var(--quantum-teal);"></i>
+                    <h4 class="mb-3 fw-semibold">DRAG MEDIA FOR ANALYSIS</h4>
+                    <p class="text-light opacity-75 mb-0">Maximum Resolution: 8K (20MB Limit)</p>
+                    <input type="file" name="file" id="fileInput" class="custom-file-input" required>
+                </div>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-neuro">
+                        <i class="fas fa-microchip me-2"></i>INITIATE SCAN
+                    </button>
+                </div>
+            </form>
+
+            {% if filename %}
+            <div id="result-section" class="mt-5">
+                <h3 class="mb-4 fw-semibold fs-1">DIAGNOSTIC REPORT</h3>
+                <div id="preview-container">
+                    <img src="{{ url_for('static', filename='uploads/' + filename) }}" 
+                         id="preview-image"
+                         class="img-fluid"
+                         alt="Uploaded Image">
+                </div>
+                <div class="text-center mt-4">
+                    <span class="result-badge d-inline-block">
+                        {{ result }} Image Detected ({{ '%0.2f'|format(confidence|float) }}% CERTAINTY)
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 120 },
+                color: { value: '#00F5D4' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.7 },
+                size: { value: 2.5 },
+                move: {
+                    enable: true,
+                    speed: 1.5,
+                    direction: 'none',
+                    random: true,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: { enable: true, mode: 'repulse' },
+                    resize: true
+                }
+            },
+            retina_detect: true
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('uploadForm');
+            const overlay = document.querySelector('.loading-overlay');
+
+            // Auto-scroll to results
+            {% if filename %}
+                const resultSection = document.getElementById('result-section');
+                resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            {% endif %}
+
+            form.addEventListener('submit', () => {
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            });
+
+            // Enhanced drag and drop
+            const card = document.querySelector('.upload-card');
+            const handleDrag = (enter) => {
+                card.style.borderColor = enter ? 'var(--plasma-pink)' : 'rgba(255,255,255,0.15)';
+                card.style.boxShadow = enter ? '0 0 40px rgba(255,0,110,0.3)' : 'none';
+                card.style.transform = enter ? 'scale(1.02)' : 'scale(1)';
+            };
+
+            card.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                handleDrag(true);
+            });
+
+            card.addEventListener('dragleave', () => handleDrag(false));
+            card.addEventListener('drop', (e) => {
+                e.preventDefault();
+                handleDrag(false);
+                document.getElementById('fileInput').files = e.dataTransfer.files;
+            });
+        });
+    </script>
+</body>
+</html>
